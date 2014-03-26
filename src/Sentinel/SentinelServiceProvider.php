@@ -24,7 +24,7 @@ class SentinelServiceProvider extends ServiceProvider {
 		$this->package('rydurham/sentinel');
 
         // Register the Sentry Service Provider
-        $this->app->register('Cartalyst\Sentry\SentryServiceProvider');
+        $this->app->register('Cartalyst\Sentry\Laravel\SentryServiceProvider');
 
         // Add the Views Namespace 
         if (is_dir(app_path().'/views/packages/rydurham/sentinel'))
@@ -71,7 +71,7 @@ class SentinelServiceProvider extends ServiceProvider {
 	public function register()
 	{
 		$loader = \Illuminate\Foundation\AliasLoader::getInstance();
-        $loader->alias('Sentry', 'Cartalyst\Sentry\Facades\Laravel\Sentry');
+        $loader->alias('Sentry', 'Cartalyst\Sentry\Laravel\Facades\Sentry');
 
 		$repoProvider = new RepoServiceProvider($this->app);
         $repoProvider->register();
