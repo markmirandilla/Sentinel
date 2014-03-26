@@ -1,4 +1,22 @@
 <?php
+/**
+ * Part of the Sentry package.
+ *
+ * NOTICE OF LICENSE
+ *
+ * Licensed under the 3-clause BSD License.
+ *
+ * This source file is subject to the 3-clause BSD License that is
+ * bundled with this package in the LICENSE file.  It is also available at
+ * the following URL: http://www.opensource.org/licenses/BSD-3-Clause
+ *
+ * @package    Sentry
+ * @version    3.0.0
+ * @author     Cartalyst LLC
+ * @license    BSD License (3-clause)
+ * @copyright  (c) 2011-2014, Cartalyst LLC
+ * @link       http://cartalyst.com
+ */
 
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
@@ -12,27 +30,20 @@ class MigrationCartalystSentryAlterThrottle extends Migration {
 	 */
 	public function up()
 	{
-		DB::table('throttle')->truncate();
+		Schema::drop('throttle');
 
-		Schema::table('throttle', function(Blueprint $table)
+		Schema::create('throttle', function(Blueprint $table)
 		{
-			$table->dropColumn('user_id');
-			$table->dropColumn('attempts');
-			$table->dropColumn('suspended');
-			$table->dropColumn('banned');
-			$table->dropColumn('last_attempt_at');
-			$table->dropColumn('suspended_at');
-			$table->dropColumn('banned_at');
-			$table->dropColumn('ip_address');
-		});
-
-		Schema::table('throttle', function(Blueprint $table)
-		{
-			$table->integer('user_id')->after('id')->nullable();
-
-			$table->string('type')->after('user_id');
+			$table->increments('id');
+			$table->integer('user_id')->unsigned();
+			$table->string('type');
 			$table->string('ip')->nullable();
 			$table->timestamps();
+
+			// We'll need to ensure that MySQL uses the InnoDB engine to
+			// support the indexes, other engines aren't affected.
+			$table->engine = 'InnoDB';
+			$table->index('user_id');
 		});
 	}
 
@@ -43,15 +54,13 @@ class MigrationCartalystSentryAlterThrottle extends Migration {
 	 */
 	public function down()
 	{
-		DB::table('throttle')->truncate();
+		Schema::drop('throttle');
 
-		Schema::table('throttle', function(Blueprint $table)
+		Schema::create('throttle', function(Blueprint $table)
 		{
-			$table->dropColumn('type');
-			$table->dropColumn('ip');
+			$table->increments('id');
+			$table->integer('user_id')->unsigned();
 			$table->string('ip_address')->nullable();
-			$table->dropTimestamps();
-
 			$table->integer('attempts')->default(0);
 			$table->boolean('suspended')->default(0);
 			$table->boolean('banned')->default(0);
@@ -59,6 +68,9 @@ class MigrationCartalystSentryAlterThrottle extends Migration {
 			$table->timestamp('suspended_at')->nullable();
 			$table->timestamp('banned_at')->nullable();
 
+			// We'll need to ensure that MySQL uses the InnoDB engine to
+			// support the indexes, other engines aren't affected.
+			$table->engine = 'InnoDB';
 			$table->index('user_id');
 		});
 	}

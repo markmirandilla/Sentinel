@@ -1,4 +1,22 @@
 <?php
+/**
+ * Part of the Sentry package.
+ *
+ * NOTICE OF LICENSE
+ *
+ * Licensed under the 3-clause BSD License.
+ *
+ * This source file is subject to the 3-clause BSD License that is
+ * bundled with this package in the LICENSE file.  It is also available at
+ * the following URL: http://www.opensource.org/licenses/BSD-3-Clause
+ *
+ * @package    Sentry
+ * @version    3.0.0
+ * @author     Cartalyst LLC
+ * @license    BSD License (3-clause)
+ * @copyright  (c) 2011-2014, Cartalyst LLC
+ * @link       http://cartalyst.com
+ */
 
 use Carbon\Carbon;
 use Illuminate\Database\Migrations\Migration;
@@ -29,13 +47,13 @@ class MigrationCartalystSentryInstallActivations extends Migration {
 
 		foreach ($users as $user)
 		{
-			$data = array(
+			$data = [
 				'user_id'      => $user->id,
 				'code'         => (string) $user->activation_code,
 				'completed'    => (int) $user->activated,
 				'created_at'   => $now,
 				'updated_at'   => $now,
-			);
+			];
 
 			if ($user->activated_at)
 			{
@@ -48,9 +66,11 @@ class MigrationCartalystSentryInstallActivations extends Migration {
 
 		Schema::table('users', function(Blueprint $table)
 		{
-			$table->dropColumn('activated');
-			$table->dropColumn('activation_code');
-			$table->dropColumn('activated_at');
+			$table->dropColumn(array(
+				'activated',
+				'activation_code',
+				'activated_at',
+			));
 		});
 	}
 
@@ -73,10 +93,10 @@ class MigrationCartalystSentryInstallActivations extends Migration {
 
 		foreach ($activations as $activation)
 		{
-			$data = array(
+			$data = [
 				'activation_code' => $activation->code,
 				'activated' => $activation->completed,
-			);
+			];
 
 			if ($activation->completed_at)
 			{

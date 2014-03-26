@@ -1,4 +1,22 @@
 <?php
+/**
+ * Part of the Sentry package.
+ *
+ * NOTICE OF LICENSE
+ *
+ * Licensed under the 3-clause BSD License.
+ *
+ * This source file is subject to the 3-clause BSD License that is
+ * bundled with this package in the LICENSE file.  It is also available at
+ * the following URL: http://www.opensource.org/licenses/BSD-3-Clause
+ *
+ * @package    Sentry
+ * @version    3.0.0
+ * @author     Cartalyst LLC
+ * @license    BSD License (3-clause)
+ * @copyright  (c) 2011-2014, Cartalyst LLC
+ * @link       http://cartalyst.com
+ */
 
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
@@ -14,16 +32,15 @@ class MigrationCartalystSentryRenameAlterGroups extends Migration {
 	{
 		Schema::table('groups', function(Blueprint $table)
 		{
-			$table->string('slug')->after('id');
+			$table->string('slug')->after('id')->default('');
 			$table->dropUnique('groups_name_unique');
-			$table->unique('slug');
 		});
 
 		$groups = DB::table('groups')->get();
 
 		foreach ($groups as $group)
 		{
-			$permissions = array();
+			$permissions = [];
 
 			if ($group->permissions)
 			{
@@ -34,12 +51,17 @@ class MigrationCartalystSentryRenameAlterGroups extends Migration {
 			}
 
 			DB::table('groups')
-				-where('name', $group->name)
-				->update(array(
+				->where('id', $group->id)
+				->update([
 					'slug' => Str::slug($group->name),
 					'permissions' => (count($permissions) > 0) ? json_encode($permissions) : '',
-				));
+				]);
 		}
+
+		Schema::table('groups', function(Blueprint $table)
+		{
+			$table->unique('slug');
+		});
 	}
 
 	/**
@@ -52,15 +74,19 @@ class MigrationCartalystSentryRenameAlterGroups extends Migration {
 		Schema::table('groups', function(Blueprint $table)
 		{
 			$table->dropUnique('groups_slug_unique');
-			$table->dropColumn('slug');
 			$table->unique('name');
+		});
+
+		Schema::table('groups', function(Blueprint $table)
+		{
+			$table->dropColumn('slug');
 		});
 
 		$groups = DB::table('groups')->get();
 
 		foreach ($groups as $group)
 		{
-			$permissions = array();
+			$permissions = [];
 
 			if ($group->permissions)
 			{
@@ -71,9 +97,10 @@ class MigrationCartalystSentryRenameAlterGroups extends Migration {
 			}
 
 			DB::table('groups')
-				->update(array(
+				->where('id', $group->id)
+				->update([
 					'permissions' => (count($permissions) > 0) ? json_encode($permissions) : '',
-				));
+				]);
 		}
 	}
 
