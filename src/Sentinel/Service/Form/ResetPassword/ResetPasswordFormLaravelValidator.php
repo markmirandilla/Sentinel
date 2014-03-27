@@ -1,8 +1,8 @@
-<?php namespace Sentinel\Service\Form\Register;
+<?php namespace Sentinel\Service\Form\ResetPassword;
 
 use Sentinel\Service\Validation\AbstractLaravelValidator;
 
-class RegisterFormLaravelValidator extends AbstractLaravelValidator {
+class ResetPasswordFormLaravelValidator extends AbstractLaravelValidator {
 	
 	/**
 	 * Validation rules
@@ -10,7 +10,6 @@ class RegisterFormLaravelValidator extends AbstractLaravelValidator {
 	 * @var Array 
 	 */
 	protected $rules = array(
-		'email' => 'required|min:4|max:32|email|unique:users',
 		'password' => 'required|min:6|confirmed',
 		'password_confirmation' => 'required'
 	);

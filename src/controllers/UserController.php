@@ -6,6 +6,7 @@ use Sentinel\Service\Form\Register\RegisterForm;
 use Sentinel\Service\Form\User\UserForm;
 use Sentinel\Service\Form\ResendActivation\ResendActivationForm;
 use Sentinel\Service\Form\ForgotPassword\ForgotPasswordForm;
+use Sentinel\Service\Form\ResetPassword\ResetPasswordForm;
 use Sentinel\Service\Form\ChangePassword\ChangePasswordForm;
 use Sentinel\Service\Form\SuspendUser\SuspendUserForm;
 use BaseController, View, Input, Event, Redirect, Session, Config;
@@ -18,6 +19,7 @@ class UserController extends BaseController {
 	protected $userForm;
 	protected $resendActivationForm;
 	protected $forgotPasswordForm;
+    protected $resetPasswordForm;
 	protected $changePasswordForm;
 	protected $suspendUserForm;
 
@@ -31,6 +33,7 @@ class UserController extends BaseController {
 		UserForm $userForm,
 		ResendActivationForm $resendActivationForm,
 		ForgotPasswordForm $forgotPasswordForm,
+        ResetPasswordForm $resetPasswordForm,
 		ChangePasswordForm $changePasswordForm,
 		SuspendUserForm $suspendUserForm)
 	{
@@ -40,6 +43,7 @@ class UserController extends BaseController {
 		$this->userForm = $userForm;
 		$this->resendActivationForm = $resendActivationForm;
 		$this->forgotPasswordForm = $forgotPasswordForm;
+        $this->resetPasswordForm = $resetPasswordForm;
 		$this->changePasswordForm = $changePasswordForm;
 		$this->suspendUserForm = $suspendUserForm;
 
@@ -339,21 +343,15 @@ class UserController extends BaseController {
 	 */
 	public function reset($id, $code)
 	{
-        if(!is_numeric($id))
-        {
-            // @codeCoverageIgnoreStart
-            return \App::abort(404);
-            // @codeCoverageIgnoreEnd
-        }
-
-		$result = $this->user->resetPassword($id, $code);
+        $data['id'] = $id;
+        $data['code'] = $code;
+        $data['password'] = e(Input::get('password'));
+        $data['password_confirmation'] = e(Input::get('password_confirmation'));
+        $result = $this->resetPasswordForm->reset($data);
 
         if( $result['success'] )
         {
-            Event::fire('sentinel.user.newpassword', array(
-				'email' => $result['mailData']['email'],
-				'newPassword' => $result['mailData']['newPassword']
-			));
+            Event::fire('sentinel.user.newpassword');
 
             // Success!
             Session::flash('success', $result['message']);
@@ -361,7 +359,9 @@ class UserController extends BaseController {
 
         } else {
             Session::flash('error', $result['message']);
-            return Redirect::route('home');
+            return Redirect::back()
+                ->withInput()
+                ->withErrors( $this->resetPasswordForm->errors() );;
         }
 	}
 
