@@ -49,7 +49,7 @@
 	        </div>
 	        <div class="collapse navbar-collapse">
 	          <ul class="nav navbar-nav">
-				@if (Sentry::check() && Sentry::getUser()->hasAccess('admin'))
+				@if (Sentry::check() && Sentry::getUser()->inGroup('admins'))
 					<li {{ (Request::is('users*') ? 'class="active"' : '') }}><a href="{{ URL::action('Sentinel\UserController@index') }}">Users</a></li>
 					<li {{ (Request::is('groups*') ? 'class="active"' : '') }}><a href="{{ URL::action('Sentinel\GroupController@index') }}">Groups</a></li>
 				@endif
