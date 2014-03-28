@@ -3,14 +3,14 @@
 interface GroupInterface {
 
 	/**
-	 * Store a newly created resource in storage.
+	 * Store a newly created group.
 	 *
 	 * @return Response
 	 */
 	public function store($data);
 	
 	/**
-	 * Update the specified resource in storage.
+	 * Update the specified group in storage.
 	 *
 	 * @param  int  $id
 	 * @return Response
@@ -18,7 +18,7 @@ interface GroupInterface {
 	public function update($id);
 
 	/**
-	 * Remove the specified resource from storage.
+	 * Remove the specified group from storage.
 	 *
 	 * @param  int  $id
 	 * @return Response
@@ -26,7 +26,7 @@ interface GroupInterface {
 	public function destroy($id);
 
 	/**
-	 * Return a specific user by a given id
+	 * Return a specific group by a given id
 	 * 
 	 * @param  integer $id
 	 * @return User
@@ -34,7 +34,7 @@ interface GroupInterface {
 	public function byId($id);
 
 	/**
-	 * Return a specific user by a given name
+	 * Return a specific group by a given name
 	 * 
 	 * @param  string $name
 	 * @return User
@@ -42,9 +42,17 @@ interface GroupInterface {
 	public function byName($name);
 
 	/**
-	 * Return all the registered users
+	 * Return a specific group by a given slug
+	 * 
+	 * @param  string $name
+	 * @return User
+	 */
+	public function bySlug($slug);
+
+	/**
+	 * Return all the groups
 	 *
-	 * @return stdObject Collection of users
+	 * @return stdObject Collection of groups
 	 */
 	public function all();
 

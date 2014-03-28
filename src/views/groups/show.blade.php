@@ -13,7 +13,7 @@ View Group
 	<div class="col-md-10">
 	    <strong>Permissions:</strong>
 	    <ul>
-	    	@foreach ($group->getPermissions() as $key => $value)
+	    	@foreach ($group->getPermissions()->getPermissions() as $key => $value)
 	    		<li>{{ ucfirst($key) }}</li>
 	    	@endforeach
 	    </ul>
@@ -25,7 +25,7 @@ View Group
 <hr />
 <h4>Group Object</h4>
 <div>
-    {{ var_dump($group) }}
+    <pre>{{ var_dump($group) }}</pre>
 </div>
 
 @stop

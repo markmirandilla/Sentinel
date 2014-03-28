@@ -54,7 +54,7 @@ class GroupForm {
      */
     public function update(array $input)
     {
-        if( ! $this->valid($input) )
+        if( ! $this->validUnique($input) )
         {
             return false;
         }
@@ -81,6 +81,19 @@ class GroupForm {
 	{
 
 		return $this->validator->with($input)->passes();
+		
+	}
+
+	/**
+	 * Test if form validator passes, making sure that the 'unique' 
+	 * validation rules ignore the current group id.
+	 *
+	 * @return boolean 
+	 */
+	protected function validUnique(array $input)
+	{
+
+		return $this->validator->with($input)->updateUnique('slug', 'slug', $input['id'])->passes();
 		
 	}
 

@@ -2,10 +2,12 @@
 
 use Cartalyst\Sentry\Sentry;
 use Sentinel\Repo\RepoAbstract;
+use Str;
 
 class SentryGroup extends RepoAbstract implements GroupInterface {
 	
 	protected $sentry;
+	protected $group;
 
 	/**
 	 * Construct a new SentryGroup Object
@@ -13,124 +15,92 @@ class SentryGroup extends RepoAbstract implements GroupInterface {
 	public function __construct(Sentry $sentry)
 	{
 		$this->sentry = $sentry;
+		$this->group = $this->sentry->getGroupRepository()->createModel();
 	}
 
 	/**
-	 * Store a newly created resource in storage.
+	 * Store a newly created group.
 	 *
 	 * @return Response
 	 */
 	public function store($data)
 	{
-		// Logic for missing checkbox values
-		if (!array_key_exists('adminPermissions', $data)) $data['adminPermissions'] = 0;
-		if (!array_key_exists('userPermissions', $data)) $data['userPermissions'] = 0;
-
 		$result = array();
-		try {
-			    // Create the group
-			    $group = $this->sentry->createGroup(array(
-			        'name'        => e($data['name']),
-			        'permissions' => array(
-			            'admin' => e($data['adminPermissions']),
-			            'users' => e($data['userPermissions']),
-			        ),
-			    ));
 
-			   	$result['success'] = true;
-	    		$result['message'] = trans('Sentinel::groups.created'); 
-		}
-		catch (\Cartalyst\Sentry\Users\LoginRequiredException $e)
+		// Convert $permissions array values to booleans
+		foreach($data['permissions'] as &$val)
 		{
-		    $result['success'] = false;
-	    	$result['message'] = trans('Sentinel::groups.loginreq');
+			$val = (bool)$val;
 		}
-		catch (\Cartalyst\Sentry\Users\UserExistsException $e)
-		{
-		    $result['success'] = false;
-	    	$result['message'] = trans('Sentinel::groups.userexists');;
-		}
+			    
+	    // Create the group
+	    $group = $this->group->create(
+	    	array(
+	        	'name'  	  => e($data['name']),
+	        	'slug'		  => Str::slug(e($data['name'])),
+	        	'permissions' => $data['permissions']
+	        )
+	    );
+
+	   	$result['success'] = true;
+		$result['message'] = trans('Sentinel::groups.created'); 
 
 		return $result;
 	}
 	
 	/**
-	 * Update the specified resource in storage.
+	 * Update the specified group in storage.
 	 *
 	 * @param  int  $id
 	 * @return Response
 	 */
 	public function update($data)
 	{
-		// Logic for missing checkbox values
-		if (!array_key_exists('adminPermissions', $data)) $data['adminPermissions'] = 0;
-		if (!array_key_exists('userPermissions', $data)) $data['userPermissions'] = 0;
+		// Find the group using the group id
+		$group = $this->group->find($data['id']);
 
-		try
+		// Convert $permissions array values to booleans
+		foreach($data['permissions'] as &$val)
 		{
-			// Find the group using the group id
-		    $group = $this->sentry->findGroupById($data['id']);
+			$val = (bool)$val;
+		}
+		
+	    // Update the group details
+	    $group->name = e($data['name']);
+	    $group->slug = Str::slug(e($data['slug']));
+	  	$group->permissions = $data['permissions'];	
 
-		    // Update the group details
-		    $group->name = e($data['name']);
-		    $group->permissions = array(
-		        'admin' => e($data['adminPermissions']),
-				'users' => e($data['userPermissions']),
-		    );
-
-		    // Update the group
-		    if ($group->save())
-		    {
-		        // Group information was updated
-		        $result['success'] = true;
-				$result['message'] = trans('Sentinel::groups.updated');;
-		    }
-		    else
-		    {
-		        // Group information was not updated
-		        $result['success'] = false;
-				$result['message'] = trans('Sentinel::groups.updateproblem');;
-		    }
-		}
-		catch (\Cartalyst\Sentry\Groups\NameRequiredException $e)
-		{
-			$result['success'] = false;
-			$result['message'] = trans('Sentinel::groups.namereq');;
-		}
-		catch (\Cartalyst\Sentry\Groups\GroupExistsException $e)
-		{
-			$result['success'] = false;
-			$result['message'] = trans('Sentinel::groups.groupexists');;
-		}
-		catch (\Cartalyst\Sentry\Groups\GroupNotFoundException $e)
-		{
-			$result['success'] = false;
-			$result['message'] = trans('Sentinel::groups.notfound');
-		}
+	    // Update the group
+	    if ($group->save())
+	    {
+	        // Group information was updated
+	        $result['success'] = true;
+			$result['message'] = trans('Sentinel::groups.updated');;
+	    }
+	    else
+	    {
+	        // Group information was not updated
+	        $result['success'] = false;
+			$result['message'] = trans('Sentinel::groups.updateproblem');;
+	    }
 
 		return $result;
 	}
 
 	/**
-	 * Remove the specified resource from storage.
+	 * Remove the specified group from storage.
 	 *
 	 * @param  int  $id
 	 * @return Response
 	 */
 	public function destroy($id)
 	{
-		try
-		{
-		    // Find the group using the group id
-		    $group = $this->sentry->findGroupById($id);
+	    // Find the group using the group id
+	    $group = $this->group->find($id);
 
-		    // Delete the group
-		    $group->delete();
-		}
-		catch (Cartalyst\Sentry\Groups\GroupNotFoundException $e)
-		{
-		    return false;
-		}
+	    // Delete the group
+	    $group->delete();
+
 		return true;
 	}
 
@@ -142,15 +112,7 @@ class SentryGroup extends RepoAbstract implements GroupInterface {
 	 */
 	public function byId($id)
 	{
-		try
-		{
-		    $group = $this->sentry->findGroupById($id);
-		}
-		catch (Cartalyst\Sentry\Groups\GroupNotFoundException $e)
-		{
-		    return false;
-		}
-		return $group;
+		return $this->sentry->getGroupRepository()->findById($id);
 	}
 
 	/**
@@ -161,15 +123,18 @@ class SentryGroup extends RepoAbstract implements GroupInterface {
 	 */
 	public function byName($name)
 	{
-		try
-		{
-		    $group = $this->sentry->findGroupByName($name);
-		}
-		catch (Cartalyst\Sentry\Groups\GroupNotFoundException $e)
-		{
-		    return false;
-		}
-		return $group;
+		return $this->group->where('name', $name)->first();
+	}
+
+	/**
+	 * Return a specific group by a given slug
+	 * 
+	 * @param  string $name
+	 * @return Group
+	 */
+	public function bySlug($slug)
+	{
+		return $this->sentry->getGroupRepository()->findBySlug($slug);
 	}
 
 	/**
@@ -179,6 +144,6 @@ class SentryGroup extends RepoAbstract implements GroupInterface {
 	 */
 	public function all()
 	{
-		return $this->sentry->getGroupProvider()->findAll();
+		return $this->sentry->getGroupRepository()->createModel()->all();
 	}
 }
