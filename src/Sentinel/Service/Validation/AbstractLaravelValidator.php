@@ -88,4 +88,19 @@ abstract class AbstractLaravelValidator	implements ValidableInterface {
 		return $this->errors;
 	}
 	
+	/**
+	 * Modify 'Unique' rule on the fly
+	 *
+	 * @param string $rule 
+	 * @param string $column DB Column to check against
+	 * @param string $modification 
+	 * 
+	 * @return \Sentinel\Service\Validation\AbstractLaravelValidator 
+	 */
+	public function updateUnique($rule, $column, $ignore)
+	{
+		$this->rules[$rule] .= ',' . $column . ',' . $ignore;
+
+		return $this; 
+	}
 }
