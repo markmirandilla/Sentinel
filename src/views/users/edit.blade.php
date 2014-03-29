@@ -48,8 +48,8 @@ Profile</h4>
             <div class="col-sm-10">
                 @foreach ($allGroups as $group)
                     <label class="checkbox-inline">
-                        <input type="checkbox" name="groups[{{ $group->id }}]" value='1' 
-                        {{ (in_array($group->name, $userGroups) ? 'checked="checked"' : '') }} > {{ $group->name }}
+                        {{ Form::checkbox("groups[$group->id]", true, in_array($group->name, $userGroups) ) }}
+                        {{ $group->name }}
                     </label>
                 @endforeach
             </div>

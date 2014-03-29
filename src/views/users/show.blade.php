@@ -46,7 +46,7 @@ Home
 
 	<h4>User Object</h4>
 	<div>
-		<p>{{ var_dump($user) }}</p>
+		<pre>{{ var_dump($user) }}</pre>
 	</div>
 
 @stop

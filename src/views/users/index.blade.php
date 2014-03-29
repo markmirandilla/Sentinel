@@ -36,7 +36,7 @@ Home
 								<button class="btn btn-default" type="button" onClick="location.href='{{ action('Sentinel\UserController@unban', array($user->id)) }}'">Un-Ban</button> 
 							@endif
 							
-							<button class="btn btn-default action_confirm" href="{{ action('Sentinel\UserController@destroy', array($user->id)) }}" data-token="{{ Session::getToken() }}" data-method="delete">Delete</button></td>
+							<button class="btn btn-default action_confirm {{ ($user->id == Session::get('userId')) ? 'disabled' : '' }}" href="{{ action('Sentinel\UserController@destroy', array($user->id)) }}" data-token="{{ Session::getToken() }}" data-method="delete">Delete</button></td>
 					</tr>
 				@endforeach
 			</tbody>

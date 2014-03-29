@@ -157,13 +157,6 @@ class UserController extends BaseController {
 	{
         $user = $this->user->byId($id);
 
-        if($user == null || !is_numeric($id))
-        {
-            // @codeCoverageIgnoreStart
-            return \App::abort(404);
-            // @codeCoverageIgnoreEnd
-        }
-
         $currentGroups = $user->getGroups()->toArray();
         $userGroups = array();
         foreach ($currentGroups as $group) {
@@ -182,15 +175,10 @@ class UserController extends BaseController {
 	 */
 	public function update($id)
 	{
-        if(!is_numeric($id))
-        {
-            // @codeCoverageIgnoreStart
-            return \App::abort(404);
-            // @codeCoverageIgnoreEnd
-        }
-
 		// Form Processing
-        $result = $this->userForm->update( Input::all() );
+        $data = Input::all();
+        $data['groups'] = Input::get('groups', array()); 
+        $result = $this->userForm->update( $data );
 
         if( $result['success'] )
         {
@@ -219,13 +207,6 @@ class UserController extends BaseController {
 	 */
 	public function destroy($id)
 	{
-        if(!is_numeric($id))
-        {
-            // @codeCoverageIgnoreStart
-            return \App::abort(404);
-            // @codeCoverageIgnoreEnd
-        }
-
 		if ($this->user->destroy($id))
 		{
 			Event::fire('sentinel.user.destroyed', array(
@@ -372,12 +353,6 @@ class UserController extends BaseController {
 	 */
 	public function change($id)
 	{
-        if(!is_numeric($id))
-        {
-            // @codeCoverageIgnoreStart
-            return \App::abort(404);
-            // @codeCoverageIgnoreEnd
-        }
 
 		$data = Input::all();
 		$data['id'] = $id;

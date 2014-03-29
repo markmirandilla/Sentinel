@@ -49,11 +49,10 @@ interface UserInterface {
 
 	/**
 	 * Process the password reset request
-	 * @param  int $id   
-	 * @param  string $code 
+	 * @param  Array $data - contains $id, $code and $password
 	 * @return Array
 	 */
-	public function resetPassword($id, $code);
+	public function resetPassword($data);
 
 	/**
 	 * Process a change password request. 
