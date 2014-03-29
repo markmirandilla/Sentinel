@@ -1,6 +1,19 @@
-## Sentinel: Sentry Implementation for Laravel 4
+## Sentinel: Sentry 3 Implementation for Laravel
 
-This pacakge provides an implementation of  [Sentry 2](https://github.com/cartalyst/sentry) for [Laravel 4](https://github.com/laravel/laravel/tree/develop). By default it uses [Bootstrap 3.0](http://getbootstrap.com), but you can make use of whatever UI you want. 
+The Sentry 3 Implementation is still a work in progress. Also, Sentry 3 itself has not yet been officially released.  
+
+To Do: 
+* Implement Throttle
+* Create Artisan 'publish' command (per Issue #11)
+* Create "Blank Theme"
+* Sort out Mail::queue vs. Queue:push 
+* Admins should be able to create new users
+* Newly Regiserted users need to be assigned a default group. (via config?)
+* Remove hardcoded English language strings in Bootstrap views
+
+---
+
+This pacakge provides an implementation of  [Sentry 3](https://github.com/cartalyst/sentry) for [Laravel](https://github.com/laravel/laravel/tree/develop). By default it uses [Bootstrap 3.0](http://getbootstrap.com), but you can make use of whatever UI you want. 
 
 This package is based on my [L4withSentry](https://github.com/rydurham/L4withSentry) demo repo. 
 
