@@ -3,11 +3,7 @@
 use Sentinel\Repo\Group\GroupInterface;
 use Sentinel\Service\Form\Group\GroupForm;
 use BaseController;
-use View;
-use Input;
-use Event;
-use Redirect;
-use Session;
+use Config, View, Input, Event, Redirect, Session;
 
 class GroupController extends BaseController {
 
@@ -48,8 +44,11 @@ class GroupController extends BaseController {
 	 */
 	public function create()
 	{
+		// Pull the currently available permission levels
+		$permissionLevels = Config::get('Sentinel::config.permissions');
+
 		//Form for creating a new Group
-		return View::make('Sentinel::groups.create');
+		return View::make('Sentinel::groups.create')->with('permissionLevels', $permissionLevels);
 	}
 
 	/**
@@ -60,7 +59,9 @@ class GroupController extends BaseController {
 	public function store()
 	{
 		// Form Processing
-        $result = $this->groupForm->save( Input::all() );
+		$data = Input::all();
+		$data['permissions'] = Input::get('permissions', array());
+        $result = $this->groupForm->save( $data );
         
         if( $result['success'] )
         {
@@ -99,7 +100,10 @@ class GroupController extends BaseController {
 	public function edit($id)
 	{
 		$group = $this->group->byId($id);
-		return View::make('Sentinel::groups.edit')->with('group', $group);
+		$permissionLevels = Config::get('Sentinel::config.permissions');
+		$groupPermissions = $group->getPermissions()->getPermissions();
+
+		return View::make('Sentinel::groups.edit')->with('group', $group)->with('permissionLevels', $permissionLevels)->with('groupPermissions', $groupPermissions);
 	}
 
 	/**
@@ -110,7 +114,9 @@ class GroupController extends BaseController {
 	public function update($id)
 	{
 		// Form Processing
-        $result = $this->groupForm->update( Input::all() );
+		$data = Input::all();
+		$data['permissions'] = Input::get('permissions', array());
+        $result = $this->groupForm->update( $data );
 
         if( $result['success'] )
         {
