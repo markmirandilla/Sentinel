@@ -6,18 +6,10 @@ use Sentinel\Repo\RepoAbstract;
 class SentrySession extends RepoAbstract implements SessionInterface {
 
 	protected $sentry;
-	protected $throttleProvider;
-
 
 	public function __construct(Sentry $sentry)
 	{
 		$this->sentry = $sentry;
-
-		// Get the Throttle Provider
-		$this->throttleProvider = $this->sentry->getThrottleProvider();
-
-		// Enable the Throttling Feature
-		$this->throttleProvider->enable();
 	}
 
 	/**
@@ -33,11 +25,6 @@ class SentrySession extends RepoAbstract implements SessionInterface {
 			    // Check for 'rememberMe' in POST data
 			    if (!array_key_exists('rememberMe', $data)) $data['rememberMe'] = 0;
 
-			    //Check for suspension or banned status
-				$user = $this->sentry->getUserProvider()->findByLogin(e($data['email']));
-				$throttle = $this->throttleProvider->findByUserId($user->id);
-			    $throttle->check();
-
 			    // Set login credentials
 			    $credentials = array(
 			        'email'    => e($data['email']),
@@ -45,42 +32,37 @@ class SentrySession extends RepoAbstract implements SessionInterface {
 			    );
 
 			    // Try to authenticate the user
+			    $user = false;
 			    $user = $this->sentry->authenticate($credentials, e($data['rememberMe']));
 
-			    $result['success'] = true;
-			    $result['sessionData']['userId'] = $user->id;
-			    $result['sessionData']['email'] = $user->email;
+			    if ($user) 
+			    {
+			    	// All is well. 
+			    	$result['success'] = true;
+				    $result['sessionData']['userId'] = $user->id;
+				    $result['sessionData']['email'] = $user->email;
+			    }
+			    else 
+			    {
+			    	// User not found.
+				    $result['success'] = false;
+				    $result['message'] = trans('Sentinel::sessions.invalid');
+			    }
+			   
 			}
-			catch (\Cartalyst\Sentry\Users\UserNotFoundException $e)
-			{
-			    // Sometimes a user is found, however hashed credentials do
-			    // not match. Therefore a user technically doesn't exist
-			    // by those credentials. Check the error message returned
-			    // for more information.
-			    $result['success'] = false;
-			    $result['message'] = trans('Sentinel::sessions.invalid');
-			}
-			catch (\Cartalyst\Sentry\Users\UserNotActivatedException $e)
+			catch (\Cartalyst\Sentry\Checkpoints\NotActivatedException $e)
 			{
 			    $result['success'] = false;
 			    $url = route('Sentinel\resendActivationForm');
 			    $result['message'] = trans('Sentinel::sessions.notactive', array('url' => $url));
 			}
-
-			// The following is only required if throttle is enabled
-			catch (\Cartalyst\Sentry\Throttling\UserSuspendedException $e)
+			catch (\Cartalyst\Sentry\Checkpoints\ThrottlingException $e)
 			{
-			    $time = $throttle->getSuspensionTime();
+			    $time = $e->getDelay();
 			    $result['success'] = false;
 			    $result['message'] = trans('Sentinel::sessions.suspended');
 			}
-			catch (\Cartalyst\Sentry\Throttling\UserBannedException $e)
-			{
-			    $result['success'] = false;
-			    $result['message'] = trans('Sentinel::sessions.banned');
-			}
-
-			//Login was succesful.  
+			//No exceptions were thrown. 
 			return $result;
 	}
 
