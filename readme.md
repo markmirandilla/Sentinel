@@ -4,12 +4,13 @@ The Sentry 3 Implementation is still a work in progress. Also, Sentry 3 itself h
 
 To Do: 
 * Implement Throttle
-* Create Artisan 'publish' command (per Issue #11)
-* Create "Blank Theme"
-* Sort out Mail::queue vs. Queue:push 
 * Admins should be able to create new users
 * Newly Regiserted users need to be assigned a default group. (via config?)
+* Create "Blank Theme"
+* Sort out Mail::queue vs. Queue::push 
 * Remove hardcoded English language strings in Bootstrap views
+* Unit Tests.  Like whoa.
+* Create Artisan 'publish' command (per Issue #11)
 
 ---
 
