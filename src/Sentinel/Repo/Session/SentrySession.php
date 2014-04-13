@@ -58,10 +58,32 @@ class SentrySession extends RepoAbstract implements SessionInterface {
 			}
 			catch (\Cartalyst\Sentry\Checkpoints\ThrottlingException $e)
 			{
-			    $time = $e->getDelay();
 			    $result['success'] = false;
-			    $result['message'] = trans('Sentinel::sessions.suspended');
+			    $delay = $e->getDelay();
+			    
+			    switch ($e->getType()) 
+			    {
+			    	case 'global': 
+			    		$result['message'] = trans('Sentinel::sessions.globalthrottle', array('delay' => $delay));
+			    	break;
+
+			    	case 'ip': 
+			    		$result['message'] = trans('Sentinel::sessions.ipthrottle', array('delay' => $delay));
+			    	break;
+
+			    	case 'user':
+			    		$result['message'] = trans('Sentinel::sessions.userthrottle', array('delay' => $delay));
+			    	break;
+
+			    	default:
+			    		$result['message'] = trans('Sentinel::sessions.suspended');
+			    	break;
+			    }
+
 			}
+			// Need to add swipe identity exception
+
+
 			//No exceptions were thrown. 
 			return $result;
 	}
