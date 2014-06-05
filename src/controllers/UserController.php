@@ -84,6 +84,13 @@ class UserController extends BaseController {
             return Redirect::route('home');
         }
 
+        if (Sentry::check())
+    {
+        die('test1');
+    } else {
+        die('test2');
+    }
+
         return View::make('Sentinel::users.create');
     }
 
